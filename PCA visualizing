@@ -1,0 +1,104 @@
+# This Python 3 environment comes with many helpful analytics libraries installed
+# It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python
+# For example, here's several helpful packages to load
+
+import numpy as np # linear algebra
+import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+
+# Input data files are available in the read-only "../input/" directory
+# For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory
+
+import os
+for dirname, _, filenames in os.walk('/kaggle/input'):
+    for filename in filenames:
+        print(os.path.join(dirname, filename))
+
+# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using "Save & Run All" 
+# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session
+
+a = pd.read_csv("/kaggle/input/digit-recognizer/train.csv")
+
+a.head()
+
+import matplotlib.pyplot as plt
+
+
+a.sample()
+
+plt.imshow(a.iloc[16611,1:].values.reshape(28,28))
+
+x = a.iloc[:,1:]
+y = a.iloc[:,0]
+
+from sklearn.model_selection import train_test_split
+trainx , testx , trainy , testy = train_test_split(x , y , test_size = 0.1) 
+
+trainy.shape
+
+from sklearn.neighbors import KNeighborsClassifier
+
+knn = KNeighborsClassifier()
+
+k1 = knn.fit(trainx , trainy)
+
+import time
+start  = time.time()
+y_pred = k1.predict(testx)
+start
+
+from sklearn.metrics import accuracy_score
+
+acc = accuracy_score(y_pred,testy)
+
+acc
+
+#Now by using PCA
+#steps to follow 
+#1) mean centering
+#2) covariance matrix
+#3) eigen vector
+#4) eigen value
+#5) complete pca by eigen(transpose).(variacne1 varince2)
+
+
+from sklearn.preprocessing import StandardScaler
+s = StandardScaler()
+xtrain = s.fit_transform(trainx)
+xtest  = s.transform(testx)
+
+from sklearn.decomposition import PCA
+p = PCA(n_components = 3)
+
+
+trainx1 = p.fit_transform(xtrain)
+testx1  = p.transform(xtest)
+
+trainx1.shape
+
+k1 = knn.fit(trainx1 , trainy)
+
+predy1 = k1.predict(testx1)
+
+as1 = accuracy_score(predy1 , testy)
+
+as1
+
+PCA.get_feature_names_out
+
+import plotly.express as pp
+
+#trainy1 = trainy.astype(str)
+fig = pp.scatter(x = trainx1[:,0] , y = trainx1[:,1],color = trainy)
+fig.show()
+
+fig1 = pp.scatter_3d(a,x = trainx1[:,0] , y = trainx1[:,1], z = trainx1[:,2],color = trainy)
+fig1.show()
+
+
+
+
+
+
+
+
+
